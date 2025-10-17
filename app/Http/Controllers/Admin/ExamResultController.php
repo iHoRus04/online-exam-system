@@ -12,21 +12,47 @@ use App\Mail\ExamResultMail;
 
 class ExamResultController extends Controller
 {
-    // 📋 Danh sách kết quả (filter theo exam, student)
-    public function index(Request $request)
+    // 📋 Danh sách kết quả
+   public function index(Request $request)
     {
         $examId = $request->input('exam_id');
         $studentId = $request->input('student_id');
+        $status = $request->input('status'); // ⬅️ thêm dòng này
 
         $query = ExamResult::with(['student', 'exam'])
             ->when($examId, fn($q) => $q->where('exam_id', $examId))
             ->when($studentId, fn($q) => $q->where('student_id', $studentId));
 
+       if ($status === 'graded') {
+            $query->whereDoesntHave('exam.questions', function ($q) {
+                $q->where('type', 'essay')
+                ->whereHas('studentAnswers', function ($a) {
+                    $a->whereNull('score');
+                });
+            });
+        } elseif ($status === 'ungraded') {
+            $query->whereHas('exam.questions', function ($q) {
+                $q->where('type', 'essay')
+                ->whereHas('studentAnswers', function ($a) {
+                    $a->whereNull('score');
+                });
+            });
+        }
+
         $results = $query->orderBy('submitted_at', 'desc')->paginate(10);
+
+        $results->transform(function ($r) {
+            $r->has_ungraded = \App\Models\StudentAnswer::where('exam_id', $r->exam_id)
+                ->where('student_id', $r->student_id)
+                ->whereHas('question', fn($q) => $q->where('type', 'essay'))
+                ->whereNull('score')
+                ->exists();
+            return $r;
+        });
 
         $exams = Exam::all();
 
-        return view('admin.results.index', compact('results', 'exams', 'examId', 'studentId'));
+        return view('admin.results.index', compact('results', 'exams', 'examId', 'studentId', 'status'));
     }
 
     // 👁️ Xem chi tiết từng bài thi
@@ -42,38 +68,39 @@ class ExamResultController extends Controller
         return view('admin.results.show', compact('result', 'answers'));
     }
 
-   // 🧮 Cập nhật điểm thủ công (cho phần tự luận)
-    public function updateScore(Request $request, $id)
-    {
-        $answer = StudentAnswer::findOrFail($id);
+   
+    public function updateAllScores(Request $request, $resultId)
+        {
+            $request->validate([
+                'answer_id' => 'required|array',
+                'score' => 'required|array',
+            ]);
 
-        $request->validate([
-            'score' => 'required|numeric|min:0|max:10',
-        ]);
+            foreach ($request->answer_id as $index => $answerId) {
+                $answer = \App\Models\StudentAnswer::find($answerId);
+                if ($answer) {
+                    $answer->score = $request->score[$index];
+                    $answer->save();
+                }
+            }
 
-        $answer->score = $request->score;
-        $answer->save();
+            // 🧮 Tính lại tổng điểm
+            $result = \App\Models\ExamResult::findOrFail($resultId);
 
-        // Tính lại tổng điểm
-        $total = StudentAnswer::where('student_id', $answer->student_id)
-            ->where('exam_id', $answer->exam_id)
-            ->sum('score');
+            $total = \App\Models\StudentAnswer::where('student_id', $result->student_id)
+                ->where('exam_id', $result->exam_id)
+                ->sum('score');
 
-        $count = StudentAnswer::where('student_id', $answer->student_id)
-            ->where('exam_id', $answer->exam_id)
-            ->count();
+            $count = \App\Models\StudentAnswer::where('student_id', $result->student_id)
+                ->where('exam_id', $result->exam_id)
+                ->count();
 
-        $final = round(($total / max($count, 1)) * 100, 2);
+            $final = round(($total / max($count, 1)) * 100, 2);
+            $result->total_score = $final;
+            $result->save();
 
-        $result = ExamResult::updateOrCreate(
-            ['student_id' => $answer->student_id, 'exam_id' => $answer->exam_id],
-            ['total_score' => $final]
-        );
+            return back()->with('success', 'Đã lưu tất cả điểm thành công!');
+        }
 
-        // ✅ Gửi email thông báo
-        Mail::to($answer->student->email)->send(new ExamResultMail($result));
-
-        return back()->with('success', '✅ Cập nhật điểm và gửi email thông báo thành công!');
-    }
-
+    
 }

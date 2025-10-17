@@ -25,4 +25,9 @@ class Question extends Model
     {
         return $this->belongsTo(Exam::class);
     }
+    public function studentAnswers()
+    {
+        return $this->hasMany(\App\Models\StudentAnswer::class, 'question_id');
+    }
+
 }

@@ -14,7 +14,14 @@ class AdminDashboardController extends Controller
         $examCount = Exam::count();
         $studentCount = User::where('is_admin', false)->count();
         $resultCount = ExamResult::count();
-        $gradedCount = ExamResult::whereNotNull('total_score')->count();
+        $gradedCount = ExamResult::whereDoesntHave('exam', function ($examQuery) {
+        $examQuery->whereHas('questions', function ($q) {
+            $q->where('type', 'essay')
+              ->whereHas('studentAnswers', function ($a) {
+                  $a->whereNull('score');
+              });
+        });
+    })->count();
 
         return view('admin.dashboard', compact(
             'examCount',

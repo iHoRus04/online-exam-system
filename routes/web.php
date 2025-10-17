@@ -39,7 +39,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::resource('exams.questions', QuestionController::class);
     Route::get('results', [ExamResultController::class, 'index'])->name('results.index');
     Route::get('results/{id}', [ExamResultController::class, 'show'])->name('results.show');
-    Route::put('results/score/{id}', [ExamResultController::class, 'updateScore'])->name('results.updateScore');
+    Route::put('/results/{id}/update-all', [ExamResultController::class, 'updateAllScores'])->name('results.updateAllScores');
+    
+
 
     
 });

@@ -27,7 +27,7 @@ class ExamAttemptController extends Controller
 
         foreach ($exam->questions as $q) {
             $userAnswer = $answers[$q->id] ?? null;
-            $score = 0;
+            $score = null;
 
           
             if ($q->type === 'multiple_choice') {
@@ -49,17 +49,30 @@ class ExamAttemptController extends Controller
         }
 
        
-        $finalScore = round(($correctCount / max($totalQuestions, 1)) * 100, 2);
+        $totalScored = StudentAnswer::where('exam_id', $exam->id)
+            ->where('student_id', $student->id)
+            ->whereNotNull('score')
+            ->sum('score');
 
-      
-        ExamResult::create([
-            'student_id' => $student->id,
-            'exam_id' => $exam->id,
-            'total_score' => $finalScore,
-            'correct_count' => $correctCount,
-            'total_questions' => $totalQuestions,
-            'submitted_at' => now(),
-        ]);
+        $gradedQuestions = StudentAnswer::where('exam_id', $exam->id)
+            ->where('student_id', $student->id)
+            ->whereNotNull('score')
+            ->count();
+
+        $totalQuestions = $exam->questions->count();
+
+        // Điểm hiện tại (chỉ tính câu trắc nghiệm)
+        $finalScore = round(($totalScored / max($totalQuestions, 1)) * 100, 2);
+
+        ExamResult::updateOrCreate(
+            ['student_id' => $student->id, 'exam_id' => $exam->id],
+            [
+                'total_score' => $finalScore,
+                'correct_count' => $gradedQuestions,
+                'total_questions' => $totalQuestions,
+                'submitted_at' => now(),
+            ]
+        );
 
         return redirect()->route('student.exams.index')
             ->with('success', "📝 Nộp bài thành công!");

@@ -29,18 +29,34 @@
         @endisset
 
         {{-- Page Content --}}
-        <main class="py-6">
+        <main>
             {{ $slot }}
         </main>
     </div>
-    <footer  class="bg-gray-900 text-gray-300 py-3 ">
-        <div class="max-w-6xl mx-auto text-center space-y-2">
-            <p>📧 Liên hệ: 
-                <a href="mailto:support@onlineexam.vn" class="text-blue-400 hover:underline">support@onlineexam.vn</a>
+    <footer class="bg-gray-900 text-gray-300 py-6">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 px-6">
+            {{-- Liên hệ --}}
+            <p class="flex items-center gap-2 text-sm md:text-base">
+                📧 Liên hệ: 
+                <a href="mailto:support@onlineexam.vn" class="text-blue-400 hover:text-blue-500 hover:underline transition-colors">
+                    support@onlineexam.vn
+                </a>
             </p>
-            <p>© {{ date('Y') }} <span class="text-white font-semibold">OnlineExam</span> — Nền tảng thi trực tuyến thông minh.</p>
+
+            {{-- Thông tin bản quyền --}}
+            <p class="text-sm md:text-base text-gray-400">
+                © {{ date('Y') }} <span class="text-white font-semibold">OnlineExam</span> — Nền tảng thi trực tuyến thông minh.
+            </p>
+
+            {{-- Social icons (tùy chọn) --}}
+            <div class="flex items-center gap-4">
+                <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors text-lg">🐦</a>
+                <a href="#" class="text-gray-400 hover:text-blue-500 transition-colors text-lg">💬</a>
+                <a href="#" class="text-gray-400 hover:text-pink-400 transition-colors text-lg">📘</a>
+            </div>
         </div>
     </footer>
+
 
 </body>
 </html>
