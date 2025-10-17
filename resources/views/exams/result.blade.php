@@ -77,9 +77,21 @@
                                         <p class="text-sm sm:text-base">Trắc nghiệm</p>
                                     </div>
                                 </div>
+                                @php
+                                    $ans = $answers[$q->id] ?? null;
+                                    $totalQuestions = $exam->questions->count();
+                                    $pointPerQuestion = 100 / max($totalQuestions, 1);
+                                    $isCorrect = $q->type === 'multiple_choice' && ($ans?->answer_text === $q->correct_answer);
+                                @endphp
+
                                 <div class="text-sm sm:text-base font-bold bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg">
-                                    {{ $isCorrect ? '+'.number_format($score ?? 0, 1).' điểm' : '0 điểm' }}
+                                    @if($isCorrect)
+                                        +{{ number_format($pointPerQuestion, 0) }} điểm
+                                    @else
+                                        0 điểm
+                                    @endif
                                 </div>
+
                             </div>
                             {{-- Body --}}
                             <div class="p-6 space-y-3">

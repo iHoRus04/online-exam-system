@@ -204,16 +204,7 @@
                                     <span class="text-sm"><strong>{{ $exam->total_questions }}</strong> câu hỏi</span>
                                 </div>
 
-                                @if($result)
-                                <div class="flex items-center gap-2 text-gray-600">
-                                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                        </svg>
-                                    </div>
-                                    <span class="text-sm">Điểm: <strong class="text-green-600">{{ number_format($result->score, 1) }}</strong></span>
-                                </div>
-                                @endif
+                               
                             </div>
 
                             <!-- Action Button -->

@@ -76,6 +76,7 @@ class ExamResultController extends Controller
                 'score' => 'required|array',
             ]);
 
+            // Cập nhật điểm từng câu
             foreach ($request->answer_id as $index => $answerId) {
                 $answer = \App\Models\StudentAnswer::find($answerId);
                 if ($answer) {
@@ -85,22 +86,34 @@ class ExamResultController extends Controller
             }
 
             // 🧮 Tính lại tổng điểm
-            $result = \App\Models\ExamResult::findOrFail($resultId);
+            $result = \App\Models\ExamResult::with('exam.questions')->findOrFail($resultId);
 
-            $total = \App\Models\StudentAnswer::where('student_id', $result->student_id)
+            $totalQuestions = $result->exam->questions->count();
+            $scorePerQuestion = 100 / max($totalQuestions, 1);
+
+            $studentAnswers = \App\Models\StudentAnswer::where('student_id', $result->student_id)
                 ->where('exam_id', $result->exam_id)
-                ->sum('score');
+                ->get();
 
-            $count = \App\Models\StudentAnswer::where('student_id', $result->student_id)
-                ->where('exam_id', $result->exam_id)
-                ->count();
+            $earned = 0;
 
-            $final = round(($total / max($count, 1)) * 100, 2);
-            $result->total_score = $final;
+            foreach ($studentAnswers as $ans) {
+                // Trắc nghiệm: điểm = 1 nếu đúng
+                if ($ans->question->type === 'multiple_choice' && $ans->answer_text === $ans->question->correct_answer) {
+                    $earned += $scorePerQuestion ;
+                }
+                
+                elseif ($ans->question->type === 'essay' && $ans->score !== null) {
+                    $earned += $ans->score ;
+                }
+            }
+
+            $result->total_score = round($earned, 2);
             $result->save();
 
-            return back()->with('success', 'Đã lưu tất cả điểm thành công!');
+            return back()->with('success', '✅ Đã lưu và cập nhật tổng điểm chính xác!');
         }
+
 
     
 }

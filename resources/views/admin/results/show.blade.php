@@ -92,53 +92,67 @@
                             <p><strong>Đáp án đúng:</strong> 
                                 <span class="text-green-600 font-medium">{{ strtoupper($q->correct_answer) }}</span>
                             </p>
-                            <p><strong>Điểm:</strong> 
-                                <span class="font-bold">{{ number_format($ans->score ?? 0, 2) }}</span>
+                            @php
+                                $totalQuestions = $result->exam->questions->count();
+                                $scorePerQuestion = round(100 / max($totalQuestions, 1), 2);
+                                $earnedScore = ($ans && $ans->answer_text === $q->correct_answer) ? $scorePerQuestion : 0;
+                            @endphp
+                            <p>
+                                <span class="font-bold text-blue-700">{{ number_format($earnedScore, 0) }} điểm </span>
                             </p>
+
                         </div>
                     </div>
                 @endforeach
             </div>
 
             {{-- TAB TỰ LUẬN --}}
-            <div x-show="tab === 'essay'" x-transition>
-                @foreach($result->exam->questions->where('type', 'essay') as $q)
-                    @php $ans = $answers[$q->id] ?? null; @endphp
+           <div x-show="tab === 'essay'" x-transition>
+            @php
+                $totalQuestions = $result->exam->questions->count();
+                $maxScorePerQuestion = round(100 / max($totalQuestions, 1), 2);
+            @endphp
 
-                    <div class="bg-white border rounded-xl p-5 shadow mb-6">
-                        <h3 class="text-lg font-semibold mb-3 text-gray-800">
-                            {{ $loop->iteration }}. {{ $q->question_text }}
-                        </h3>
+            @foreach($result->exam->questions->where('type', 'essay') as $q)
+                @php $ans = $answers[$q->id] ?? null; @endphp
 
-                        <p class="font-semibold text-gray-700">Bài làm của sinh viên:</p>
-                        <div class="border rounded-lg bg-gray-50 p-3 mt-1 text-gray-800 min-h-[60px]">
-                            {{ $ans->answer_text ?? '—' }}
-                        </div>
+                <div class="bg-white border rounded-xl p-5 shadow mb-6">
+                    <h3 class="text-lg font-semibold mb-3 text-gray-800">
+                        {{ $loop->iteration }}. {{ $q->question_text }}
+                    </h3>
 
-                        @if($ans)
-                            <div class="flex items-center gap-3 mt-3">
-                                <input type="hidden" name="answer_id[]" value="{{ $ans->id }}">
-                                <label class="font-semibold text-gray-700">Điểm:</label>
-                                <input
-                                    type="number"
-                                    step="0.5"
-                                    min="0"
-                                    max="10"
-                                    name="score[]"
-                                    value="{{ $ans->score ?? 0 }}"
-                                    class="w-24 border-gray-300 rounded-lg focus:ring focus:ring-blue-200"
-                                    required
-                                >
-                            </div>
-                        @endif
+                    <p class="font-semibold text-gray-700">Bài làm của sinh viên:</p>
+                    <div class="border rounded-lg bg-gray-50 p-3 mt-1 text-gray-800 min-h-[60px]">
+                        {{ $ans->answer_text ?? '—' }}
                     </div>
-                @endforeach
-            </div>
+
+                    @if($ans)
+                        <div class="flex items-center gap-3 mt-3">
+                            <input type="hidden" name="answer_id[]" value="{{ $ans->id }}">
+                            <label class="font-semibold text-gray-700">
+                                (Tối đa  {{  number_format($maxScorePerQuestion, 0) }} điểm):
+                            </label>
+                            <input
+                                type="number"
+                                step="0.5"
+                                min="0"
+                                max="{{ number_format($maxScorePerQuestion, 0) }}"
+                                name="score[]"
+                                value="{{ $ans->score ?? 0 }}"
+                                class="w-28 border-gray-300 rounded-lg focus:ring focus:ring-blue-200 text-center font-semibold"
+                                required
+                            >
+                        </div>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+
 
             {{-- Nút lưu tất cả --}}
             <div class="text-center mt-10">
                 <button type="submit"
-                        class="bg-blue-600 text-white px-8 py-2.5 rounded-lg font-medium hover:bg-blue-700 shadow transition">
+                        class="bg-blue-600 text-white px-8 py-2.5 rounded-lg font-medium hover:bg-blue-700 shadow transition mb-6">
                     💾 Lưu tất cả điểm
                 </button>
             </div>
