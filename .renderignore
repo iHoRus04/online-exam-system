@@ -1,0 +1,11 @@
+# Ignore large or unnecessary files from build/upload to Render
+node_modules
+vendor
+.env
+/tests
+/.github
+/.vscode
+/.idea
+/storage/*.key
+/storage/*.log
+/public/storage
