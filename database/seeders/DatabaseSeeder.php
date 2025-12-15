@@ -3,27 +3,17 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Tài khoản Admin
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('password'),
-            'is_admin' => true,
+        // gọi seeder admin (firstOrCreate bên trong sẽ tránh tạo trùng)
+        $this->call([
+            \Database\Seeders\AdminUserSeeder::class,
         ]);
 
-        // Tài khoản Sinh viên
-        User::create([
-            'name' => 'Student',
-            'email' => 'student@example.com',
-            'password' => Hash::make('password'),
-            'is_admin' => false,
-        ]);
+        // Nếu bạn muốn seed thêm Student account cũng idempotent:
+        // \Database\Seeders\StudentUserSeeder::class,
     }
 }

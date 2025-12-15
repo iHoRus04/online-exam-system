@@ -80,5 +80,16 @@ else
   echo "==> Skipping config/route cache (APP_ENV=${APP_ENV:-local})"
 fi
 
+# Run seeder if requested by env var
+if [ "${SEED_ON_START:-false}" = "true" ]; then
+  echo "==> Running AdminUserSeeder (SEED_ON_START=true)"
+  php artisan db:seed --class=Database\\Seeders\\AdminUserSeeder --force || {
+    echo "==> AdminUserSeeder failed (continuing)."
+  }
+
+  # Optional: run student seeder too
+  # php artisan db:seed --class=Database\\Seeders\\StudentUserSeeder --force || true
+fi
+
 echo "==> Starting supervisord"
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
