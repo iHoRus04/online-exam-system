@@ -86,7 +86,7 @@ class ExamResultController extends Controller
             }
 
             // 🧮 Tính lại tổng điểm
-            $result = \App\Models\ExamResult::with('exam.questions')->findOrFail($resultId);
+            $result = \App\Models\ExamResult::with(['exam.questions', 'student'])->findOrFail($resultId);
 
             $totalQuestions = $result->exam->questions->count();
             $scorePerQuestion = 100 / max($totalQuestions, 1);
@@ -110,6 +110,18 @@ class ExamResultController extends Controller
 
             $result->total_score = round($earned, 2);
             $result->save();
+
+            // Gửi email thông báo kết quả (nếu sinh viên có email)
+            try {
+                if ($result->student && !empty($result->student->email)) {
+                    Mail::to($result->student->email)->send(new ExamResultMail($result));
+                    \Log::info('Exam result email sent', ['result_id' => $result->id, 'student_id' => $result->student_id]);
+                } else {
+                    \Log::warning('Exam result not emailed: student has no email', ['result_id' => $result->id, 'student_id' => $result->student_id]);
+                }
+            } catch (\Exception $e) {
+                \Log::error('Failed to send exam result email', ['result_id' => $result->id, 'error' => $e->getMessage()]);
+            }
 
             return back()->with('success', '✅ Đã lưu và cập nhật tổng điểm chính xác!');
         }
