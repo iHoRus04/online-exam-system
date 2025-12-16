@@ -103,11 +103,11 @@
                                             @elseif($key === $answer && $key !== $q->correct_answer) border-red-300 bg-red-50 text-red-700 font-semibold
                                             @else border-gray-200 text-gray-700
                                             @endif hover:scale-[1.02] transition-all duration-200">
-                                            <span class="font-bold">{{ $key }}.</span> {{ $opt }}
+                                            <span class="font-bold">{{ $key === 0 ? "A" : chr(ord("A") + $key) }}.</span> {{ $opt }}
                                             @if($key === $q->correct_answer) ✅ @elseif($key === $answer && $key !== $q->correct_answer) ❌ @endif
                                         </li>
                                     @endforeach
-                                </ul>
+                                </ul> 
                                 <p class="mt-2 text-sm">
                                     <strong>🧠 Đáp án của bạn:</strong>
                                     <span class="{{ $isCorrect ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold' }}">
