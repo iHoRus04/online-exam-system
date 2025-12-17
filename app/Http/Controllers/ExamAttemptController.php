@@ -29,10 +29,11 @@ class ExamAttemptController extends Controller
             $userAnswer = $answers[$q->id] ?? null;
             $score = null;
 
-          
+            // Xử lý từng câu hỏi: hiện tại chỉ tự chấm trắc nghiệm.
             if ($q->type === 'multiple_choice') {
+                // Với trắc nghiệm, so sánh trực tiếp với `correct_answer`.
                 if ($userAnswer === $q->correct_answer) {
-                    $score = 1;
+                    $score = 1; // dùng 1 để đánh dấu đúng (tính phần trăm sau)
                     $correctCount++;
                 }
             }

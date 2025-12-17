@@ -15,6 +15,12 @@ use Illuminate\View\View;
 class RegisteredUserController extends Controller
 {
     /**
+     * Controller xử lý đăng ký người dùng (student)
+     *
+     * Lưu ý: không gán `is_admin` ở đây — user mới mặc định không phải admin
+     * theo migration, nên không cần set explicit khi tạo user.
+     */
+    /**
      * Display the registration view.
      */
     public function create(): View
@@ -35,6 +41,8 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // Tạo user mới (mass assignment chỉ dùng các trường trong $fillable của model)
+        // `is_admin` không được thiết lập ở đây nên sẽ dùng default trong DB (false).
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,

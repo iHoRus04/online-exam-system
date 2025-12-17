@@ -28,8 +28,11 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Sau khi login, dựa vào flag `is_admin` để điều hướng:
+        // - admin -> trang quản trị
+        // - student -> trang danh sách bài thi
         if (auth()->user()->is_admin) {
-        return redirect()->route('admin.dashboard'); // Trang quản lý admin
+            return redirect()->route('admin.dashboard'); // Trang quản lý admin
         }
 
         return redirect()->route('student.exams.index');

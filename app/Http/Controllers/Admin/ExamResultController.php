@@ -23,6 +23,9 @@ class ExamResultController extends Controller
             ->when($examId, fn($q) => $q->where('exam_id', $examId))
             ->when($studentId, fn($q) => $q->where('student_id', $studentId));
 
+       // Nếu filter theo trạng thái graded/ungraded thì áp dụng điều kiện toán học
+       // graded: không tồn tại câu tự luận (essay) chưa được chấm (score IS NULL)
+       // ungraded: tồn tại ít nhất một câu tự luận chưa chấm
        if ($status === 'graded') {
             $query->whereDoesntHave('exam.questions', function ($q) {
                 $q->where('type', 'essay')
@@ -41,6 +44,7 @@ class ExamResultController extends Controller
 
         $results = $query->orderBy('submitted_at', 'desc')->paginate(10);
 
+        // Thêm cờ `has_ungraded` để view có thể hiển thị badge/indicator.
         $results->transform(function ($r) {
             $r->has_ungraded = \App\Models\StudentAnswer::where('exam_id', $r->exam_id)
                 ->where('student_id', $r->student_id)

@@ -27,6 +27,7 @@ class ExamController extends Controller
             'total_questions' => 'required|integer|min:1',
         ]);
 
+        // Tạo bài thi mới từ request. Các validation ở trên đảm bảo dữ liệu hợp lệ.
         Exam::create($request->all());
 
         return redirect()->route('admin.exams.index')->with('success', 'Tạo bài thi thành công!');

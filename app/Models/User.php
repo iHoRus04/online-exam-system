@@ -24,6 +24,10 @@ class User extends Authenticatable
         'password',
     ];
 
+    // Lưu ý: `is_admin` không nằm trong $fillable, nên khi tạo user qua
+    // mass-assignment (ví dụ RegisteredUserController) cờ này sẽ dùng giá trị
+    // mặc định của database (migration đã set default false).
+
     /**
      * The attributes that should be hidden for serialization.
      *
