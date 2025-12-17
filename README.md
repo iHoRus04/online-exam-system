@@ -177,3 +177,4 @@ MAIL_FROM_NAME="Online Exam System"
 Email sẽ ghi vào `storage/logs/laravel.log`.
 ## 10. File hướng dẫn và mô tả chức năng 
 https://docs.google.com/document/d/1m1wDCpgNFdg1F5sZoyzzy0wezT0av_WM/edit?usp=sharing&ouid=113723149047881815542&rtpof=true&sd=true
+##https://online-exam-system-h384.onrender.com/
