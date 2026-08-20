@@ -12,6 +12,8 @@ services:
       # Ensure APP_KEY exists (will not overwrite if provided via env)
       if [ -z "$APP_KEY" ]; then php artisan key:generate --force || true; fi
     startCommand: |
+      # Clear config cache first
+      php artisan config:clear || true
       # Run migrations (ignore failures if DB not yet provisioned)
       php artisan migrate --seed --force || true
       # Create storage symlink

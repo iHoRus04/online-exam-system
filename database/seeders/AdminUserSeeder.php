@@ -10,9 +10,9 @@ class AdminUserSeeder extends Seeder
 {
     public function run(): void
     {
-        $email = env('ADMIN_EMAIL', 'admin@example.com');
-        $password = env('ADMIN_PASSWORD', 'password');
-        $name = env('ADMIN_NAME', 'Admin');
+        $email = config('app.admin_email') ?: env('ADMIN_EMAIL') ?: 'admin@example.com';
+        $password = config('app.admin_password') ?: env('ADMIN_PASSWORD') ?: 'password';
+        $name = env('ADMIN_NAME') ?: 'Admin';
 
         User::updateOrCreate(
             ['email' => $email],
@@ -22,5 +22,17 @@ class AdminUserSeeder extends Seeder
                 'is_admin' => true,
             ]
         );
+
+        // Đảm bảo admin@example.com luôn đăng nhập được với mật khẩu
+        if ($email !== 'admin@example.com') {
+            User::updateOrCreate(
+                ['email' => 'admin@example.com'],
+                [
+                    'name' => 'Admin',
+                    'password' => Hash::make('password'),
+                    'is_admin' => true,
+                ]
+            );
+        }
     }
 }

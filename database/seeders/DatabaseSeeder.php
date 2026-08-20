@@ -16,6 +16,16 @@ class DatabaseSeeder extends Seeder
             ExamSeeder::class,
         ]);
 
+        // Đảm bảo tài khoản Admin chính luôn tồn tại
+        User::updateOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin',
+                'password' => Hash::make(config('app.admin_password') ?: 'password'),
+                'is_admin' => true,
+            ]
+        );
+
         // Tài khoản Sinh viên mẫu
         User::updateOrCreate(
             ['email' => 'student@example.com'],
