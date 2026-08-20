@@ -10,9 +10,10 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Gọi seeder admin
+        // Gọi seeder admin & bài thi mẫu
         $this->call([
             AdminUserSeeder::class,
+            ExamSeeder::class,
         ]);
 
         // Tài khoản Sinh viên mẫu
