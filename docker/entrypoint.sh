@@ -57,19 +57,21 @@ echo "==> Setting permissions for storage and bootstrap/cache"
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache || true
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache || true
 
-# Run migrations (non-interactive)
-echo "==> Running migrations"
-if php artisan migrate --force; then
-  echo "==> Migrations completed"
+# Run migrations and seeders (non-interactive)
+echo "==> Running migrations and seeders"
+if php artisan migrate --seed --force; then
+  echo "==> Migrations and seeders completed"
 else
-  echo "==> Migrations failed (continuing). Check logs."
-  # If you'd rather fail the container when migrations fail, uncomment:
-  # exit 1
+  echo "==> Migrations/seeders failed (continuing). Check logs."
 fi
 
 # Ensure storage symlink (no-op if exists)
 echo "==> Ensuring storage:link"
 php artisan storage:link || true
+
+# Run main DatabaseSeeder to ensure Admin, Student, and Exams exist
+echo "==> Running DatabaseSeeder"
+php artisan db:seed --force || echo "==> DatabaseSeeder completed/skipped"
 
 # Cache config/routes only in production for safety
 if [ "${APP_ENV:-production}" = "production" ]; then
@@ -78,17 +80,6 @@ if [ "${APP_ENV:-production}" = "production" ]; then
   php artisan route:cache || true
 else
   echo "==> Skipping config/route cache (APP_ENV=${APP_ENV:-local})"
-fi
-
-# Run seeder if requested by env var
-if [ "${SEED_ON_START:-false}" = "true" ]; then
-  echo "==> Running AdminUserSeeder (SEED_ON_START=true)"
-  php artisan db:seed --class=Database\\Seeders\\AdminUserSeeder --force || {
-    echo "==> AdminUserSeeder failed (continuing)."
-  }
-
-  # Optional: run student seeder too
-  # php artisan db:seed --class=Database\\Seeders\\StudentUserSeeder --force || true
 fi
 
 echo "==> Starting supervisord"
