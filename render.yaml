@@ -13,7 +13,7 @@ services:
       if [ -z "$APP_KEY" ]; then php artisan key:generate --force || true; fi
     startCommand: |
       # Run migrations (ignore failures if DB not yet provisioned)
-      php artisan migrate --force || true
+      php artisan migrate --seed --force || true
       # Create storage symlink
       php artisan storage:link || true
       # Cache configuration and routes
