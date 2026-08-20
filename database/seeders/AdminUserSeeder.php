@@ -14,12 +14,11 @@ class AdminUserSeeder extends Seeder
         $password = env('ADMIN_PASSWORD', 'password');
         $name = env('ADMIN_NAME', 'Admin');
 
-        User::firstOrCreate(
+        User::updateOrCreate(
             ['email' => $email],
             [
                 'name' => $name,
                 'password' => Hash::make($password),
-                // Nếu bảng users không có cột is_admin, xóa dòng dưới hoặc đổi sang cột phù hợp
                 'is_admin' => true,
             ]
         );

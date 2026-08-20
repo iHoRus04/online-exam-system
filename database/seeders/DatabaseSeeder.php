@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Tài khoản Sinh viên mẫu
-        User::firstOrCreate(
+        User::updateOrCreate(
             ['email' => 'student@example.com'],
             [
                 'name' => 'Student',
