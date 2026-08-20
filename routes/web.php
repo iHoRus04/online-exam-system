@@ -9,23 +9,13 @@ use App\Http\Controllers\Admin\ExamResultController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/setup-db', function() {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('config:clear');
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
-        return '<div style="font-family: sans-serif; padding: 20px; color: green;">
-            <h1>✅ Khởi tạo & Seed Database thành công!</h1>
-            <p>Tài khoản Admin: <b>admin@example.com</b> / Mật khẩu: <b>password</b></p>
-            <p>Tài khoản Sinh viên: <b>student@example.com</b> / Mật khẩu: <b>password</b></p>
-            <a href="/login" style="display: inline-block; padding: 10px 20px; background: #4F46E5; color: white; border-radius: 8px; text-decoration: none;">Vào trang Đăng nhập</a>
-        </div>';
-    } catch (\Exception $e) {
-        return '<div style="font-family: sans-serif; padding: 20px; color: red;">
-            <h1>❌ Lỗi khởi tạo Database:</h1>
-            <pre>' . $e->getMessage() . '</pre>
-        </div>';
-    }
+Route::get('/', function () {
+    return view('welcome');
+});
+
+// Route Keep-Alive cho Render
+Route::get('/ping', function () {
+    return response()->json(['status' => 'ok', 'timestamp' => now()->toIso8601String()]);
 });
 
 Route::get('/dashboard', function () {

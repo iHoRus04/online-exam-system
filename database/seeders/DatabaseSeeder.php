@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin',
-                'password' => Hash::make(config('app.admin_password') ?: 'password'),
+                'password' => Hash::make(config('app.admin_password') ?: '12345678'),
                 'is_admin' => true,
             ]
         );
@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'student@example.com'],
             [
                 'name' => 'Student',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('12345678'),
                 'is_admin' => false,
             ]
         );
