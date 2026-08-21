@@ -112,7 +112,7 @@ class ExamResultController extends Controller
                 }
             }
 
-            $result->total_score = round($earned, 2);
+            $result->total_score = round(min($earned, 100), 2);
             $result->save();
 
             // Gửi email thông báo kết quả (nếu sinh viên có email)

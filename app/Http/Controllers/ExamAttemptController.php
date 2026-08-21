@@ -24,52 +24,57 @@ class ExamAttemptController extends Controller
         $answers = $request->input('answers', []);
         $correctCount = 0;
         $totalQuestions = $exam->questions->count();
+        $scorePerQuestion = 100 / max($totalQuestions, 1);
+        $earnedScore = 0;
 
         foreach ($exam->questions as $q) {
             $userAnswer = $answers[$q->id] ?? null;
             $score = null;
 
-            // Xử lý từng câu hỏi: hiện tại chỉ tự chấm trắc nghiệm.
             if ($q->type === 'multiple_choice') {
-                // Với trắc nghiệm, so sánh trực tiếp với `correct_answer`.
                 if ($userAnswer === $q->correct_answer) {
-                    $score = 1; // dùng 1 để đánh dấu đúng (tính phần trăm sau)
+                    $score = 1;
                     $correctCount++;
+                    $earnedScore += $scorePerQuestion;
+                } else {
+                    $score = 0;
+                }
+            } else {
+                // Tự luận: Giữ lại điểm nếu Admin đã chấm trước đó
+                $existing = StudentAnswer::where('student_id', $student->id)
+                    ->where('exam_id', $exam->id)
+                    ->where('question_id', $q->id)
+                    ->first();
+
+                $score = $existing?->score;
+                if ($score !== null) {
+                    $earnedScore += $score;
                 }
             }
 
-            
-            StudentAnswer::create([
-                'student_id' => $student->id,
-                'exam_id' => $exam->id,
-                'question_id' => $q->id,
-                'answer_text' => $userAnswer,
-                'score' => $score,
-                'submitted_at' => now(),
-            ]);
+            // Dùng updateOrCreate để tránh tạo bản ghi trùng lặp mỗi lần nộp bài
+            StudentAnswer::updateOrCreate(
+                [
+                    'student_id' => $student->id,
+                    'exam_id' => $exam->id,
+                    'question_id' => $q->id,
+                ],
+                [
+                    'answer_text' => $userAnswer,
+                    'score' => $score,
+                    'submitted_at' => now(),
+                ]
+            );
         }
 
-       
-        $totalScored = StudentAnswer::where('exam_id', $exam->id)
-            ->where('student_id', $student->id)
-            ->whereNotNull('score')
-            ->sum('score');
-
-        $gradedQuestions = StudentAnswer::where('exam_id', $exam->id)
-            ->where('student_id', $student->id)
-            ->whereNotNull('score')
-            ->count();
-
-        $totalQuestions = $exam->questions->count();
-
-        // Điểm hiện tại (chỉ tính câu trắc nghiệm)
-        $finalScore = round(($totalScored / max($totalQuestions, 1)) * 100, 2);
+        // Tính tổng điểm (tối đa 100 điểm)
+        $finalScore = round(min($earnedScore, 100), 2);
 
         ExamResult::updateOrCreate(
             ['student_id' => $student->id, 'exam_id' => $exam->id],
             [
                 'total_score' => $finalScore,
-                'correct_count' => $gradedQuestions,
+                'correct_count' => $correctCount,
                 'total_questions' => $totalQuestions,
                 'submitted_at' => now(),
             ]
@@ -78,6 +83,7 @@ class ExamAttemptController extends Controller
         return redirect()->route('student.exams.index')
             ->with('success', "📝 Nộp bài thành công!");
     }
+
     public function result($exam_id)
     {
         $student = auth()->user();
@@ -96,5 +102,4 @@ class ExamAttemptController extends Controller
 
         return view('exams.result', compact('exam', 'answers', 'result'));
     }
-
 }
