@@ -74,9 +74,9 @@
                             @php $optionsList = is_array($q->options) ? $q->options : (json_decode($q->options ?? '[]', true) ?? []); @endphp
                             @foreach($optionsList as $key => $opt)
                                 @php
-                                    $label = chr(65 + $key);
-                                    $isCorrect = $q->correct_answer == $label;
-                                    $isStudentChoice = $ans?->answer_text == $label;
+                                    $label = is_numeric($key) ? chr(65 + (int)$key) : strtoupper((string)$key);
+                                    $isCorrect = (string)$q->correct_answer === (string)$label;
+                                    $isStudentChoice = (string)$ans?->answer_text === (string)$label;
                                 @endphp
                                 <li class="p-3 rounded-lg border transition
                                     {{ $isCorrect ? 'bg-green-100 border-green-400' : '' }}
