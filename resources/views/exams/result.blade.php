@@ -99,13 +99,16 @@
                                 <ul class="space-y-2">
                                     @php $optionsList = is_array($q->options) ? $q->options : (json_decode($q->options ?? '[]', true) ?? []); @endphp
                                     @foreach($optionsList as $key => $opt)
+                                        @php
+                                            $optLabel = is_numeric($key) ? chr(65 + (int)$key) : strtoupper($key);
+                                        @endphp
                                         <li class="px-4 py-2 rounded-lg border flex items-center gap-2
-                                            @if($key === $q->correct_answer) border-green-300 bg-green-50 text-green-700 font-semibold
-                                            @elseif($key === $answer && $key !== $q->correct_answer) border-red-300 bg-red-50 text-red-700 font-semibold
+                                            @if((string)$key === (string)$q->correct_answer) border-green-300 bg-green-50 text-green-700 font-semibold
+                                            @elseif((string)$key === (string)$answer && (string)$key !== (string)$q->correct_answer) border-red-300 bg-red-50 text-red-700 font-semibold
                                             @else border-gray-200 text-gray-700
                                             @endif hover:scale-[1.02] transition-all duration-200">
-                                            <span class="font-bold">{{ $key === 0 ? "A" : chr(ord("A") + $key) }}.</span> {{ $opt }}
-                                            @if($key === $q->correct_answer) ✅ @elseif($key === $answer && $key !== $q->correct_answer) ❌ @endif
+                                            <span class="font-bold">{{ $optLabel }}.</span> {{ $opt }}
+                                            @if((string)$key === (string)$q->correct_answer) ✅ @elseif((string)$key === (string)$answer && (string)$key !== (string)$q->correct_answer) ❌ @endif
                                         </li>
                                     @endforeach
                                 </ul> 

@@ -115,9 +115,9 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 ml-16">
                                     @foreach($options as $key => $opt)
                                         @php
-                                            $optionKey = strtoupper(is_numeric($key) ? chr(65 + $key) : $key);
+                                            $optionKey = strtoupper(is_numeric($key) ? chr(65 + (int)$key) : $key);
                                             $colors = ['blue', 'purple', 'pink', 'indigo'];
-                                            $color = $colors[$key % 4];
+                                            $color = $colors[$loop->index % 4];
                                         @endphp
                                         <label class="relative flex items-start cursor-pointer group/option">
                                             <input type="radio" 
