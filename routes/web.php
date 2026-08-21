@@ -13,11 +13,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Route Keep-Alive cho Render
-Route::get('/ping', function () {
-    return response()->json(['status' => 'ok', 'timestamp' => now()->toIso8601String()]);
-});
-
 Route::get('/dashboard', function () {
     return redirect()->route('student.exams.index');
 })->middleware(['auth', 'verified'])->name('dashboard');

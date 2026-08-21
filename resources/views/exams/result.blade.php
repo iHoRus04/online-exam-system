@@ -97,7 +97,8 @@
                             <div class="p-6 space-y-3">
                                 <p class="font-semibold text-gray-800 text-lg sm:text-xl">{{ $q->question_text }}</p>
                                 <ul class="space-y-2">
-                                    @foreach(json_decode($q->options, true) as $key => $opt)
+                                    @php $optionsList = is_array($q->options) ? $q->options : (json_decode($q->options ?? '[]', true) ?? []); @endphp
+                                    @foreach($optionsList as $key => $opt)
                                         <li class="px-4 py-2 rounded-lg border flex items-center gap-2
                                             @if($key === $q->correct_answer) border-green-300 bg-green-50 text-green-700 font-semibold
                                             @elseif($key === $answer && $key !== $q->correct_answer) border-red-300 bg-red-50 text-red-700 font-semibold

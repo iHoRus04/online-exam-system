@@ -111,7 +111,7 @@
                                     </p>
                                 </div>
 
-                                @php $options = json_decode($q->options, true) ?? []; @endphp
+                                @php $options = is_array($q->options) ? $q->options : (json_decode($q->options ?? '[]', true) ?? []); @endphp
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 ml-16">
                                     @foreach($options as $key => $opt)
                                         @php

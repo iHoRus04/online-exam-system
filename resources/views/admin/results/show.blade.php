@@ -71,7 +71,8 @@
                         </h3>
 
                         <ul class="space-y-2 mb-4">
-                            @foreach(json_decode($q->options ?? '[]', true) as $key => $opt)
+                            @php $optionsList = is_array($q->options) ? $q->options : (json_decode($q->options ?? '[]', true) ?? []); @endphp
+                            @foreach($optionsList as $key => $opt)
                                 @php
                                     $label = chr(65 + $key);
                                     $isCorrect = $q->correct_answer == $label;
