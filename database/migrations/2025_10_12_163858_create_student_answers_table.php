@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('exam_id')->constrained()->onDelete('cascade');
             $table->foreignId('question_id')->constrained()->onDelete('cascade');
             $table->text('answer_text')->nullable();
-            $table->integer('score')->nullable();
+            $table->decimal('score', 8, 2)->nullable();
             $table->timestamp('submitted_at')->nullable();
             $table->timestamps();
         });
